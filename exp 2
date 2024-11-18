@@ -1,0 +1,405 @@
+import numpy as np
+np.random.seed(42)
+
+# Initialize weights for a simple network with 2 inputs and 1 output neuron
+weights = np.random.rand(2, 1)
+print("Initial weights:\n", weights)
+Initial weights:
+ [[0.37454012]
+ [0.95071431]]
+def sigmoid(x):
+    return 1 / (1 + np.exp(-x))
+
+def sigmoid_derivative(x):
+    return x * (1 - x)
+def forward_propagate(inputs, weights):
+    # Calculate the weighted sum of inputs
+    net_input = np.dot(inputs, weights)
+    # Apply the sigmoid activation function
+    output = sigmoid(net_input)
+    return output
+def backpropagate(error, inputs, weights, learning_rate):
+    # Calculate the gradient (error * derivative of sigmoid)
+    gradient = error * sigmoid_derivative(inputs)
+    # Adjust weights
+    weights += learning_rate * np.dot(inputs.T, gradient)
+    return weights
+# Define the input and output arrays
+inputs = np.array([[0, 0], 
+                   [0, 1], 
+                   [1, 0], 
+                   [1, 1]])
+outputs = np.array([[0], 
+                    [1], 
+                    [1], 
+                    [0]])
+
+# Learning rate
+learning_rate = 0.1
+
+# Training loop
+for epoch in range(10000):  # Train for 10,000 iterations
+    for i in range(len(inputs)):
+        # Forward propagation
+        predicted_output = forward_propagate(inputs[i], weights)
+        
+        # Calculate the error
+        error = outputs[i] - predicted_output
+        
+        # Backward propagation and update weights
+        weights = backpropagate(error, inputs[i].reshape(1, -1), weights, learning_rate)
+
+# Print final weights
+print("Final weights:\n", weights)
+
+# Test the network with the inputs
+for i in range(len(inputs)):
+    predicted_output = forward_propagate(inputs[i], weights)
+    print(f"Input: {inputs[i]}, Predicted Output: {predicted_output}")
+---------------------------------------------------------------------------
+ValueError                                Traceback (most recent call last)
+Cell In[35], line 24
+     21         error = outputs[i] - predicted_output
+     23         # Backward propagation and update weights
+---> 24         weights = backpropagate(error, inputs[i].reshape(1, -1), weights, learning_rate)
+     26 # Print final weights
+     27 print("Final weights:\n", weights)
+
+Cell In[33], line 5, in backpropagate(error, inputs, weights, learning_rate)
+      3 gradient = error * sigmoid_derivative(inputs)
+      4 # Adjust weights
+----> 5 weights += learning_rate * np.dot(inputs.T, gradient)
+      6 return weights
+
+ValueError: non-broadcastable output operand with shape (2,1) doesn't match the broadcast shape (2,2)
+import numpy as np
+
+#applying seed
+np.random.seed(42)
+
+# Initialize weights for a network with 2 inputs and 1 output neuron
+weights = np.random.rand(2, 1)
+print("Initial weights:\n", weights)
+
+# Define the sigmoid transfer function and its derivative
+def sigmoid(x):
+    return 1 / (1 + np.exp(-x))
+
+def sigmoid_derivative(x):
+    return x * (1 - x)
+
+# Forward propagation function
+def forward_propagate(inputs, weights):
+    net_input = np.dot(inputs, weights)
+    output = sigmoid(net_input)
+    return output
+
+# Backward propagation function
+def backpropagate(error, inputs, weights, learning_rate):
+    # Compute the gradient
+    gradient = error * sigmoid_derivative(forward_propagate(inputs, weights))
+    # Update weights
+    weights += learning_rate * np.dot(inputs.T, gradient)
+    return weights
+
+# Define inputs and outputs
+inputs = np.array([[0, 0], 
+                   [0, 1], 
+                   [1, 0], 
+                   [1, 1]])
+outputs = np.array([[0], 
+                    [1], 
+                    [1], 
+                    [0]])
+
+# Learning rate
+learning_rate = 0.1
+
+# Training loop
+for epoch in range(10000):  # Train for 10,000 iterations
+    for i in range(len(inputs)):
+        # Forward propagation
+        predicted_output = forward_propagate(inputs[i], weights)
+        
+        # Calculate the error
+        error = outputs[i] - predicted_output
+        
+        # Backward propagation and update weights
+        weights = backpropagate(error, inputs[i].reshape(1, -1), weights, learning_rate)
+
+# Print final weights
+print("Final weights:\n", weights)
+
+# Test the network with the inputs
+for i in range(len(inputs)):
+    predicted_output = forward_propagate(inputs[i], weights)
+    print(f"Input: {inputs[i]}, Predicted Output: {predicted_output}")
+Initial weights:
+ [[0.37454012]
+ [0.95071431]]
+Final weights:
+ [[-0.00836805]
+ [-0.00836805]]
+Input: [0 0], Predicted Output: [0.5]
+Input: [0 1], Predicted Output: [0.497908]
+Input: [1 0], Predicted Output: [0.497908]
+Input: [1 1], Predicted Output: [0.49581607]
+import numpy as np
+
+# Seed for reproducibility
+np.random.seed(42)
+
+# Initialize weights
+input_to_hidden_weights = np.random.rand(2, 2)  # Weights for 2 inputs to 2 hidden neurons
+hidden_to_output_weights = np.random.rand(2, 1)  # Weights for 2 hidden neurons to 1 output neuron
+
+# Define the sigmoid transfer function and its derivative
+def sigmoid(x):
+    return 1 / (1 + np.exp(-x))
+
+def sigmoid_derivative(x):
+    return x * (1 - x)
+
+# Forward propagation function
+def forward_propagate(inputs, input_to_hidden_weights, hidden_to_output_weights):
+    # Hidden layer calculations
+    hidden_layer_input = np.dot(inputs, input_to_hidden_weights)  # Shape (1, 2)
+    hidden_layer_output = sigmoid(hidden_layer_input)  # Shape (1, 2)
+    
+    # Output layer calculations
+    output_layer_input = np.dot(hidden_layer_output, hidden_to_output_weights)  # Shape (1, 1)
+    output = sigmoid(output_layer_input)  # Shape (1, 1)
+    
+    return hidden_layer_output, output
+
+# Backward propagation function
+def backpropagate(inputs, hidden_layer_output, predicted_output, expected_output, 
+                  input_to_hidden_weights, hidden_to_output_weights, learning_rate):
+    
+    # Calculate the error in the output
+    output_error = expected_output - predicted_output  # Shape (1, 1)
+    output_delta = output_error * sigmoid_derivative(predicted_output)  # Shape (1, 1)
+    
+    # Calculate the error in the hidden layer
+    hidden_error = output_delta.dot(hidden_to_output_weights.T)  # Shape (1, 2)
+    hidden_delta = hidden_error * sigmoid_derivative(hidden_layer_output)  # Shape (1, 2)
+    
+    # Update the weights (reshape to ensure proper dot product)
+    hidden_to_output_weights += hidden_layer_output.T.dot(output_delta) * learning_rate  # Shape (2, 1)
+    input_to_hidden_weights += inputs.T.dot(hidden_delta) * learning_rate  # Shape (2, 2)
+    
+    return input_to_hidden_weights, hidden_to_output_weights
+
+# Define the XOR problem inputs and outputs
+inputs = np.array([[0, 0], 
+                   [0, 1], 
+                   [1, 0], 
+                   [1, 1]])  # Shape (4, 2)
+outputs = np.array([[0], 
+                    [1], 
+                    [1], 
+                    [0]])  # Shape (4, 1)
+
+# Learning rate
+learning_rate = 0.1
+
+# Training loop
+for epoch in range(10000):  # Train for 10,000 iterations
+    for i in range(len(inputs)):
+        # Forward propagation
+        hidden_layer_output, predicted_output = forward_propagate(inputs[i].reshape(1, -1), 
+                                                                  input_to_hidden_weights, 
+                                                                  hidden_to_output_weights)
+        
+        # Backward propagation and weight updates
+        input_to_hidden_weights, hidden_to_output_weights = backpropagate(inputs[i].reshape(1, -1), 
+                                                                          hidden_layer_output, 
+                                                                          predicted_output, 
+                                                                          outputs[i].reshape(1, -1), 
+                                                                          input_to_hidden_weights, 
+                                                                          hidden_to_output_weights, 
+                                                                          learning_rate)
+
+# Print final weights
+print("Final input to hidden weights:\n", input_to_hidden_weights)
+print("Final hidden to output weights:\n", hidden_to_output_weights)
+
+# Test the network with the XOR inputs
+for i in range(len(inputs)):
+    _, predicted_output = forward_propagate(inputs[i].reshape(1, -1), input_to_hidden_weights, hidden_to_output_weights)
+    print(f"Input: {inputs[i]}, Predicted Output: {predicted_output}")
+Final input to hidden weights:
+ [[0.80450179 5.58233772]
+ [0.80085487 5.58502787]]
+Final hidden to output weights:
+ [[-11.85438476]
+ [  9.20944271]]
+Input: [0 0], Predicted Output: [[0.21040747]]
+Input: [0 1], Predicted Output: [[0.7298009]]
+Input: [1 0], Predicted Output: [[0.72795701]]
+Input: [1 1], Predicted Output: [[0.34015296]]
+import numpy as np
+
+# Seed for reproducibility
+np.random.seed(42)
+
+# Initialize weights
+input_to_output_weights = np.random.rand(2, 1)  # Weights for 2 inputs to 1 output neuron
+
+# Define the sigmoid transfer function and its derivative
+def sigmoid(x):
+    return 1 / (1 + np.exp(-x))
+
+def sigmoid_derivative(x):
+    return x * (1 - x)
+
+# Forward propagation function
+def forward_propagate(inputs, input_to_output_weights):
+    output_layer_input = np.dot(inputs, input_to_output_weights)  # Shape (n_samples, 1)
+    output = sigmoid(output_layer_input)  # Shape (n_samples, 1)
+    return output
+
+# Backward propagation function
+def backpropagate(inputs, predicted_output, expected_output, input_to_output_weights, learning_rate):
+    # Calculate the error
+    output_error = expected_output - predicted_output  # Shape (n_samples, 1)
+    output_delta = output_error * sigmoid_derivative(predicted_output)  # Shape (n_samples, 1)
+    
+    # Update the weights
+    input_to_output_weights += np.dot(inputs.T, output_delta) * learning_rate  # Shape (2, 1)
+    
+    return input_to_output_weights
+
+# Define the AND problem inputs and outputs
+inputs = np.array([[0, 0], 
+                   [0, 1], 
+                   [1, 0], 
+                   [1, 1]])  # Shape (4, 2)
+outputs = np.array([[0], 
+                    [0], 
+                    [0], 
+                    [1]])  # Shape (4, 1)
+
+# Learning rate
+learning_rate = 0.1
+
+# Training loop
+for epoch in range(10000):  # Train for 10,000 iterations
+    # Forward propagation
+    predicted_output = forward_propagate(inputs, input_to_output_weights)
+    
+    # Backward propagation and weight updates
+    input_to_output_weights = backpropagate(inputs, predicted_output, outputs, 
+                                            input_to_output_weights, learning_rate)
+
+# Print final weights
+print("Final input to output weights:\n", input_to_output_weights)
+
+# Test the network with the AND inputs
+for i in range(len(inputs)):
+    predicted_output = forward_propagate(inputs[i].reshape(1, -1), input_to_output_weights)
+    print(f"Input: {inputs[i]}, Predicted Output: {predicted_output}")
+Final input to output weights:
+ [[-3.31783473e-16]
+ [ 1.66339350e-16]]
+Input: [0 0], Predicted Output: [[0.5]]
+Input: [0 1], Predicted Output: [[0.5]]
+Input: [1 0], Predicted Output: [[0.5]]
+Input: [1 1], Predicted Output: [[0.5]]
+# import Python Libraries
+import numpy as np
+from matplotlib import pyplot as plt
+ 
+# Sigmoid Function
+def sigmoid(z):
+    return 1 / (1 + np.exp(-z))
+ 
+# Initialization of the neural network parameters
+# Initialized all the weights in the range of between 0 and 1
+# Bias values are initialized to 0
+def initializeParameters(inputFeatures, neuronsInHiddenLayers, outputFeatures):
+    W1 = np.random.randn(neuronsInHiddenLayers, inputFeatures)
+    W2 = np.random.randn(outputFeatures, neuronsInHiddenLayers)
+    b1 = np.zeros((neuronsInHiddenLayers, 1))
+    b2 = np.zeros((outputFeatures, 1))
+     
+    parameters = {"W1" : W1, "b1": b1,
+                  "W2" : W2, "b2": b2}
+    return parameters
+ 
+# Forward Propagation
+def forwardPropagation(X, Y, parameters):
+    m = X.shape[1]
+    W1 = parameters["W1"]
+    W2 = parameters["W2"]
+    b1 = parameters["b1"]
+    b2 = parameters["b2"]
+ 
+    Z1 = np.dot(W1, X) + b1
+    A1 = sigmoid(Z1)
+    Z2 = np.dot(W2, A1) + b2
+    A2 = sigmoid(Z2)
+ 
+    cache = (Z1, A1, W1, b1, Z2, A2, W2, b2)
+    logprobs = np.multiply(np.log(A2), Y) + np.multiply(np.log(1 - A2), (1 - Y))
+    cost = -np.sum(logprobs) / m
+    return cost, cache, A2
+ 
+# Backward Propagation
+def backwardPropagation(X, Y, cache):
+    m = X.shape[1]
+    (Z1, A1, W1, b1, Z2, A2, W2, b2) = cache
+     
+    dZ2 = A2 - Y
+    dW2 = np.dot(dZ2, A1.T) / m
+    db2 = np.sum(dZ2, axis = 1, keepdims = True)
+     
+    dA1 = np.dot(W2.T, dZ2)
+    dZ1 = np.multiply(dA1, A1 * (1- A1))
+    dW1 = np.dot(dZ1, X.T) / m
+    db1 = np.sum(dZ1, axis = 1, keepdims = True) / m
+     
+    gradients = {"dZ2": dZ2, "dW2": dW2, "db2": db2,
+                 "dZ1": dZ1, "dW1": dW1, "db1": db1}
+    return gradients
+ 
+# Updating the weights based on the negative gradients
+def updateParameters(parameters, gradients, learningRate):
+    parameters["W1"] = parameters["W1"] - learningRate * gradients["dW1"]
+    parameters["W2"] = parameters["W2"] - learningRate * gradients["dW2"]
+    parameters["b1"] = parameters["b1"] - learningRate * gradients["db1"]
+    parameters["b2"] = parameters["b2"] - learningRate * gradients["db2"]
+    return parameters
+ 
+# Model to learn the AND truth table 
+X = np.array([[0, 0, 1, 1], [0, 1, 0, 1]]) # AND input
+Y = np.array([[0, 0, 0, 1]]) # AND output
+ 
+# Define model parameters
+neuronsInHiddenLayers = 2 # number of hidden layer neurons (2)
+inputFeatures = X.shape[0] # number of input features (2)
+outputFeatures = Y.shape[0] # number of output features (1)
+parameters = initializeParameters(inputFeatures, neuronsInHiddenLayers, outputFeatures)
+epoch = 10000
+learningRate = 0.01
+losses = np.zeros((epoch, 1))
+ 
+for i in range(epoch):
+    losses[i, 0], cache, A2 = forwardPropagation(X, Y, parameters)
+    gradients = backwardPropagation(X, Y, cache)
+    parameters = updateParameters(parameters, gradients, learningRate)
+ 
+# # Evaluating the performance
+# plt.figure()
+# plt.plot(losses)
+# plt.xlabel("EPOCHS")
+# plt.ylabel("Loss value")
+# plt.show()
+ 
+# Testing
+X = np.array([[1, 1, 0, 0], [0, 1, 0, 1]]) # AND input
+cost, _, A2 = forwardPropagation(X, Y, parameters)
+prediction = (A2 > 0.5) * 1.0
+# print(A2)
+print(prediction)
+[[0. 1. 0. 0.]]
